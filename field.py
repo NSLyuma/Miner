@@ -6,7 +6,7 @@ class Field:
 
     def __init__(self,size=7):
         self.data=[[Cell() for i in range(size)] for j in range(size)]
-        self.size=7
+        self.size=size
 
     def generate_field(self):
         # x=random.randint(0,self.size)
@@ -27,24 +27,40 @@ class Field:
         for i in range(self.size):
             for j in range(self.size):
                 self.calculate_mines_count(i,j)
+            print()
 
     def calculate_mines_count(self,i,j):
-        current_cell = self.data[i][j]
-        count = 0
-        if current_cell.mines_count != Cell.MINE:
-            for dx in range(-1, 2):
-                for dy in range(-1, 2):
-                    x = i + dx
-                    y = j + dy
-                    if 0 <= x < self.size and 0 <= y < self.size and self.data[x][y].mines_count == Cell.MINE:
-                        count += 1
+        current_cell=self.data[i][j]
+        count=0
+        if current_cell.mines_count!=Cell.MINE:
+            for dx in range(-1,2):
+                for dy in range(-1,2):
+                    x=i+dx
+                    y=j+dy
+                    if 0<=x<self.size and 0<=y<self.size and self.data[x][y].mines_count==Cell.MINE:
+                        count+=1
 
-            current_cell.mines_count = count
+            current_cell.mines_count=count
+            print(count,end=' ')
+        else:
+            print('* ',end='')
 
-    def get_value(self, x, y):
+    def open_field(self):
+        for row in self.data:
+            for cell in row:
+                cell.is_open=True
+
+    def is_only_mines_left(self):
+        for row in self.data:
+            for cell in row:
+                if cell.mines_count!=Cell.MINE and cell.is_open==False:
+                    return False
+        return True
+
+    def get_value(self,x,y):
         pass
 
-    def open_cell(self, x, y):
+    def open_cell(self,x,y):
         if self.data[x][y].mines_count==Cell.MINE:
             return Cell.MINE
         self.walk(x,y)
@@ -54,9 +70,9 @@ class Field:
     def walk(self,x,y):
         if self.data[x][y].is_open:
             return
+        self.data[x][y].is_open=True
         if self.data[x][y].mines_count>0:
             return
-        self.data[x][y].is_open = True
 
         if x-1>=0:
             self.walk(x-1,y)
@@ -70,12 +86,9 @@ class Field:
                 self.walk(x+1,y+1)
             if y-1>=0:
                 self.walk(x+1,y-1)
-        if y+1<self.walk(x,y+1):
+        if y+1<self.size:
             self.walk(x,y+1)
         if y-1>=0:
             self.walk(x,y-1)
 
 
-
-field = Field()
-field.generate_field()
